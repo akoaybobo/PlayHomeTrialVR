@@ -257,7 +257,7 @@ namespace VRGIN.Core
                 {
                     targetCamera.nearClipPlane = VR.Context.NearClipPlane;
                     targetCamera.farClipPlane = Mathf.Max(Blueprint.farClipPlane, MIN_FAR_CLIP_PLANE);
-                    targetCamera.clearFlags = Blueprint.clearFlags == CameraClearFlags.Skybox ? CameraClearFlags.Skybox : CameraClearFlags.SolidColor;
+                    //targetCamera.clearFlags = Blueprint.clearFlags == CameraClearFlags.Skybox ? CameraClearFlags.Skybox : CameraClearFlags.SolidColor;
                     targetCamera.renderingPath = Blueprint.renderingPath;
                     targetCamera.clearStencilAfterLightingPass = Blueprint.clearStencilAfterLightingPass;
                     targetCamera.depthTextureMode = Blueprint.depthTextureMode;
@@ -268,14 +268,15 @@ namespace VRGIN.Core
 
                     targetCamera.backgroundColor = Blueprint.backgroundColor;
 
-                    var skybox = Blueprint.GetComponent<Skybox>();
-                    if (skybox != null)
-                    {
-                        var vrSkybox = targetCamera.gameObject.GetComponent<Skybox>();
-                        if (vrSkybox == null) vrSkybox = vrSkybox.gameObject.AddComponent<Skybox>();
+                    //PlayHomeTrial not workign with the skybox
+                    //var skybox = Blueprint.GetComponent<Skybox>();
+                    //if (skybox != null)
+                    //{
+                    //    var vrSkybox = targetCamera.gameObject.GetComponent<Skybox>();
+                    //    if (vrSkybox == null) vrSkybox = vrSkybox.gameObject.AddComponent<Skybox>();
 
-                        vrSkybox.material = skybox.material;
-                    }
+                    //    vrSkybox.material = skybox.material;
+                    //}
                 });
 
             }
