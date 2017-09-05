@@ -257,8 +257,7 @@ namespace VRGIN.Core
                 {
                     targetCamera.nearClipPlane = VR.Context.NearClipPlane;
                     targetCamera.farClipPlane = Mathf.Max(Blueprint.farClipPlane, MIN_FAR_CLIP_PLANE);
-                    //09-09-2017 - PlayHomeTrial Does not work with Skybox
-                    //targetCamera.clearFlags = Blueprint.clearFlags == CameraClearFlags.Skybox ? CameraClearFlags.Skybox : CameraClearFlags.SolidColor;
+                    targetCamera.clearFlags = Blueprint.clearFlags == CameraClearFlags.Skybox ? CameraClearFlags.Skybox : CameraClearFlags.SolidColor;
                     targetCamera.renderingPath = Blueprint.renderingPath;
                     targetCamera.clearStencilAfterLightingPass = Blueprint.clearStencilAfterLightingPass;
                     targetCamera.depthTextureMode = Blueprint.depthTextureMode;
@@ -268,15 +267,15 @@ namespace VRGIN.Core
                     targetCamera.hdr = false;
 
                     targetCamera.backgroundColor = Blueprint.backgroundColor;
-                    //09-09-2017 - PlayHomeTrial Does not work with Skybox
-                    //var skybox = Blueprint.GetComponent<Skybox>();
-                    //if (skybox != null)
-                    //{
-                    //    var vrSkybox = targetCamera.gameObject.GetComponent<Skybox>();
-                    //    if (vrSkybox == null) vrSkybox = vrSkybox.gameObject.AddComponent<Skybox>();
 
-                    //    vrSkybox.material = skybox.material;
-                    //}
+                    var skybox = Blueprint.GetComponent<Skybox>();
+                    if (skybox != null)
+                    {
+                        var vrSkybox = targetCamera.gameObject.GetComponent<Skybox>();
+                        if (vrSkybox == null) vrSkybox = vrSkybox.gameObject.AddComponent<Skybox>();
+
+                        vrSkybox.material = skybox.material;
+                    }
                 });
 
             }
