@@ -29,7 +29,7 @@ sysinfo.txt
 *.apk
 *.unitypackage
 
-*.exe
+#*.exe
 *.suo
 */bin
 */obj
