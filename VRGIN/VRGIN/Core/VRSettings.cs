@@ -78,7 +78,7 @@ namespace VRGIN.Core
         /// </summary>
         [XmlComment("The render scale of the renderer. Increase for better quality but less performance, decrease for more performance but poor quality. ]0..2]")]
         public float RenderScale { get { return _RenderScale; } set { _RenderScale = Mathf.Clamp(value, 0.1f, 4f); TriggerPropertyChanged("RenderScale"); } }
-        private float _RenderScale = 1f;
+        private float _RenderScale = 2f;
 
         [XmlComment("Whether or not to display anything on the mirror screen. (Broken)")]
         public bool MirrorScreen { get { return _MirrorScreen; } set { _MirrorScreen = value; TriggerPropertyChanged("MirrorScreen"); } }

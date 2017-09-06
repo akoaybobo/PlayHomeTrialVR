@@ -8,6 +8,7 @@ using System.Text;
 using System.Xml.Serialization;
 using VRGIN.Core;
 using VRGIN.Helpers;
+using UnityEngine;
 
 namespace PlayHomeTrialVR
 {
@@ -46,7 +47,16 @@ namespace PlayHomeTrialVR
             bool vrActivated = Environment.CommandLine.Contains("--vr");
             bool seated = Environment.CommandLine.Contains("--seated");
             bool standing = Environment.CommandLine.Contains("--standing");
-            
+            bool noaa = Environment.CommandLine.Contains("--no-aa");
+            if (noaa)
+            {
+                QualitySettings.antiAliasing = 0;
+            } 
+            else
+            {
+                QualitySettings.antiAliasing = 1;
+            }
+
             if (vrActivated || (!vrDeactivated && SteamVRDetector.IsRunning))
             {
                 // Boot VRManager!

@@ -5,6 +5,8 @@ using System.Linq;
 using UnityEngine;
 using VRGIN.Helpers;
 
+//Play Home Trial version -- Modified to remove Skybox issues
+
 namespace VRGIN.Core
 {
     public class InitializeCameraEventArgs : EventArgs
@@ -16,6 +18,7 @@ namespace VRGIN.Core
         {
             Camera = camera;
             Blueprint = blueprint;
+            VRLog.Info("DEBUG: InitializeCameraEventArgs - Camera Name {0}, Blueprint Name {1}",Camera.name,Blueprint.name);
         }
     }
 
@@ -26,6 +29,7 @@ namespace VRGIN.Core
         public CopiedCameraEventArgs(Camera camera)
         {
             Camera = camera;
+            VRLog.Info("DEBUG: CopiedCameraEventArgs - Camera Name {0}, Blueprint Name {1}", Camera.name);
         }
     }
 
@@ -51,19 +55,18 @@ namespace VRGIN.Core
         public void OnPreCull()
         {
             _Camera.enabled = false;
-            //VRLog.Info("Disable");
+            //VRLog.Info("DEBUG: OnPreCull() Disable Camera Name {0}", _Camera.name);
         }
 
         public void OnGUI()
         {
             if (Event.current.type == EventType.Repaint)
             {
-                //VRLog.Info("Enable");
-
                 _Camera.enabled = true;
+                //VRLog.Info("DEBUG: OnGUI() Enable Camera Name {0}", _Camera.name);
             }
         }
-        //protected override void OnUpdate()
+        //protected override void ()
         //{
         //    base.OnUpdate();
 
@@ -158,7 +161,9 @@ namespace VRGIN.Core
         {
             get
             {
-                return _Blueprint && _Blueprint.isActiveAndEnabled ? _Blueprint : Slaves.Select(s => s.Camera).FirstOrDefault(c => !VR.GUI.Owns(c));
+                var blue = _Blueprint && _Blueprint.isActiveAndEnabled ? _Blueprint : Slaves.Select(s => s.Camera).FirstOrDefault(c => !VR.GUI.Owns(c));
+                //VRLog.Info("DEBUG: VRCamera GET returning camera/blueprint {0}", blue);
+                return blue;
             }
         }
         private Camera _Blueprint { get; set; }
@@ -171,6 +176,7 @@ namespace VRGIN.Core
         {
             get
             {
+                VRLog.Info("DEBUG: Get SteamCam origin transform - {0}", SteamCam.name);
                 return SteamCam.origin;
             }
         }
@@ -179,6 +185,7 @@ namespace VRGIN.Core
         {
             get
             {
+                VRLog.Info("DEBUG: Get SteamCam head transform - {0}", SteamCam.name);
                 return SteamCam.head;
             }
         }
@@ -204,6 +211,7 @@ namespace VRGIN.Core
             {
                 if (_Instance == null)
                 {
+                    VRLog.Info("DEBUG:1 Setting VRCam Instance");
                     _Instance = new GameObject("VRGIN_Camera").AddComponent<AudioListener>().gameObject.AddComponent<VRCamera>();
                 }
                 return _Instance;
@@ -212,17 +220,18 @@ namespace VRGIN.Core
 
         protected override void OnAwake()
         {
-            VRLog.Info("Creating VR Camera");
+            VRLog.Info("OnAwake() Creating VR Camera");
             _Camera = gameObject.AddComponent<Camera>();
             gameObject.AddComponent<SteamVR_Camera>();
             SteamCam = GetComponent<SteamVR_Camera>();
             SteamCam.Expand(); // Expand immediately!
 
-            if (!VR.Settings.MirrorScreen)
-            {
-                Destroy(SteamCam.head.GetComponent<SteamVR_GameView>());
-                Destroy(SteamCam.head.GetComponent<Camera>()); // Save GPU power
-            }
+            //Don't disable the Mirror Screen. It helps
+            //if (!VR.Settings.MirrorScreen)
+            //{
+            //    Destroy(SteamCam.head.GetComponent<SteamVR_GameView>());
+            //    Destroy(SteamCam.head.GetComponent<Camera>()); // Save GPU power
+            //}
 
             // Set render scale to the value defined by the user
             SteamVR_Camera.sceneResolutionScale = VR.Settings.RenderScale;
@@ -255,6 +264,7 @@ namespace VRGIN.Core
                 // Apply to both the head camera and the VR camera
                 ApplyToCameras(targetCamera =>
                 {
+                    VRLog.Info("ApplyToCamera: Target Camera {0}, Blueprint Camera {1}", targetCamera.name, Blueprint.name);
                     targetCamera.nearClipPlane = VR.Context.NearClipPlane;
                     targetCamera.farClipPlane = Mathf.Max(Blueprint.farClipPlane, MIN_FAR_CLIP_PLANE);
                     //targetCamera.clearFlags = Blueprint.clearFlags == CameraClearFlags.Skybox ? CameraClearFlags.Skybox : CameraClearFlags.SolidColor;
@@ -340,7 +350,7 @@ namespace VRGIN.Core
             cullingMask &= ~(LayerMask.GetMask(VR.Context.UILayer, VR.Context.InvisibleLayer));
             cullingMask &= ~(VR.Context.IgnoreMask);
 
-            VRLog.Info("The camera sees {0} ({1})", string.Join(", ", UnityHelper.GetLayerNames(cullingMask)), string.Join(", ", Slaves.Select(s => s.name).ToArray()));
+            VRLog.Info("UpdateCameraConfig() The camera sees {0} ({1})", string.Join(", ", UnityHelper.GetLayerNames(cullingMask)), string.Join(", ", Slaves.Select(s => s.name).ToArray()));
 
             GetComponent<Camera>().cullingMask = cullingMask;
         }
@@ -410,7 +420,7 @@ namespace VRGIN.Core
         protected override void OnUpdate()
         {
             base.OnUpdate();
-
+            //VRLog.Info("DEBUG: VRCamera.cs OnUpdate() triggered");
             if (SteamCam.origin)
             {
                 // Make sure the scale is right
@@ -425,6 +435,7 @@ namespace VRGIN.Core
 
         internal Camera Clone(bool copyEffects = true)
         {
+            VRLog.Info("Camera having components cloned");
             var clone = new GameObject("VRGIN_Camera_Clone").CopyComponentFrom(SteamCam.GetComponent<Camera>());
 
             if (copyEffects)

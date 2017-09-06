@@ -70,6 +70,7 @@ namespace VRGIN.Core
             {
                 if (!_Instance)
                 {
+                    VRLog.Info("DEBUG: Setting VRCam Instance");
                     _Instance = new GameObject("VRGIN_GUI").AddComponent<VRGUI>();
 
 #if UNITY_4_5
