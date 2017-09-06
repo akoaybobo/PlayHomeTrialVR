@@ -18,6 +18,11 @@ namespace PlayHomeTrialVR
     /// </summary>
     public class VRPlugin : IPlugin
     {
+        public bool vrDeactivated = Environment.CommandLine.Contains("--novr");
+        public bool vrActivated = Environment.CommandLine.Contains("--vr");
+        public bool seated = Environment.CommandLine.Contains("--seated");
+        public bool standing = Environment.CommandLine.Contains("--standing");
+        public bool noaa = Environment.CommandLine.Contains("--no-aa");
 
         /// <summary>
         /// Put the name of your plugin here.
@@ -43,15 +48,12 @@ namespace PlayHomeTrialVR
         /// </summary>
         public void OnApplicationStart()
         {
-            bool vrDeactivated = Environment.CommandLine.Contains("--novr");
-            bool vrActivated = Environment.CommandLine.Contains("--vr");
-            bool seated = Environment.CommandLine.Contains("--seated");
-            bool standing = Environment.CommandLine.Contains("--standing");
-            bool noaa = Environment.CommandLine.Contains("--no-aa");
+            VRLog.Info("== Application Start ==");
+
             if (noaa)
             {
                 QualitySettings.antiAliasing = 0;
-            } 
+            }
             else
             {
                 QualitySettings.antiAliasing = 1;
@@ -66,7 +68,7 @@ namespace PlayHomeTrialVR
                 if (standing)
                 {
                     VR.Manager.SetMode<PlayHomeStandingMode>();
-                } 
+                }
                 else
                 {
                     VR.Manager.SetMode<PlayHomeSeatedMode>();
@@ -74,12 +76,43 @@ namespace PlayHomeTrialVR
             }
         }
 
+        public void OnLevelWasLoaded(int level)
+        {
+        //    VRLog.Info("DEBUG: On Level {0}", level);
+                        
+        //    if (noaa)
+        //    {
+        //        QualitySettings.antiAliasing = 0;
+        //    }
+        //    else
+        //    {
+        //        QualitySettings.antiAliasing = 1;
+        //    }
+        //    if ((level == 0) && (vrActivated || (!vrDeactivated && SteamVRDetector.IsRunning)))
+        //    {
+        //        // Boot VRManager!
+        //        // Note: Use your own implementation of GameInterpreter to gain access to a few useful operatoins
+        //        // (e.g. characters, camera judging, colliders, etc.)
+        //        VRLog.Info("DEBUG: On Level {0} - Booting VR", level);
+        //        VRManager.Create<PlayHomeInterpreter>(CreateContext("VRContext.xml"));
+        //        if (standing)
+        //        {
+        //            VR.Manager.SetMode<PlayHomeStandingMode>();
+        //        }
+        //        else
+        //        {
+        //            VR.Manager.SetMode<PlayHomeSeatedMode>();
+        //        }
+        //}
+    }
+
         #region Helper code
 
-        private IVRManagerContext CreateContext(string path) {
+        private IVRManagerContext CreateContext(string path)
+        {
             var serializer = new XmlSerializer(typeof(ConfigurableContext));
 
-            if(File.Exists(path))
+            if (File.Exists(path))
             {
                 // Attempt to load XML
                 using (var file = File.OpenRead(path))
@@ -104,9 +137,10 @@ namespace PlayHomeTrialVR
                     file.BaseStream.SetLength(0);
                     serializer.Serialize(file, context);
                 }
-            } catch(Exception e)
+            }
+            catch (Exception e)
             {
-                VRLog.Error("{0} Failed to write {1}",e, path);
+                VRLog.Error("{0} Failed to write {1}", e, path);
             }
 
             return context;
@@ -117,8 +151,11 @@ namespace PlayHomeTrialVR
         public void OnApplicationQuit() { }
         public void OnFixedUpdate() { }
         public void OnLevelWasInitialized(int level) { }
-        public void OnLevelWasLoaded(int level) { }
+        //public void OnLevelWasLoaded(int level) { }
         public void OnUpdate() { }
+
+
+
         #endregion
     }
 }
