@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 using VRGIN.Controls;
+using VRGIN.Controls.Tools;
 using VRGIN.Core;
 using VRGIN.Helpers;
 using VRGIN.Modes;
@@ -18,6 +19,14 @@ namespace PlayHomeVR
             return base.CreateShortcuts().Concat(new IShortcut[] {
                 new MultiKeyboardShortcut(new KeyStroke("Ctrl+C"), new KeyStroke("Ctrl+C"), () => { VR.Manager.SetMode<PlayHomeSeatedMode>(); })
             });
+        }
+
+        public override IEnumerable<Type> Tools
+        {
+            get
+            {
+                return base.Tools.Concat(new Type[] { typeof(PlayHomeTool) });
+            }
         }
     }
 }

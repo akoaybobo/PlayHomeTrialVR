@@ -19,6 +19,8 @@ namespace PlayHomeVR
             get { return _Actors.Cast<IActor>(); }
         }
 
+        public List<PlayHomeActor> FemaleMainActors { get; } = new List<PlayHomeActor>();
+
         protected override void OnUpdate()
         {
             base.OnUpdate();
@@ -55,7 +57,15 @@ namespace PlayHomeVR
                 }
             }
             _Actors = newActors;
-            //VRGIN.Core.Logger.Debug("Found " + _Actors.Count + " scene actors, impersonated: " + FindImpersonatedActor() );
+
+            FemaleMainActors.Clear();
+            foreach (var member in Scene.mainMembers.GetFemales())
+            {
+                if (member.isActiveAndEnabled)
+                {
+                    FemaleMainActors.Add(_Actors.Find(x => x.Actor == member) ?? new PlayHomeActor(member));
+                }
+            }
         }
 
         public override IActor FindImpersonatedActor()
@@ -66,11 +76,8 @@ namespace PlayHomeVR
         public override IActor FindNextActorToImpersonate()
         {
             var actors = _Actors.Where(x => x.IsMale).ToList();
-
-
             var res = actors.OrderByDescending(actor => Vector3.Dot((actor.Eyes.position - VR.Camera.transform.position).normalized, VR.Camera.SteamCam.head.forward)).FirstOrDefault();
             VRGIN.Core.Logger.Debug("Impersonated Actor: " + res != null ? res.Actor.name : "None");
-
             return res;
         }
 

@@ -59,6 +59,7 @@
     <Compile Include="PlayHomeInterpreter.cs" />
     <Compile Include="PlayHomeSeatedMode.cs" />
     <Compile Include="PlayHomeStandingMode.cs" />
+    <Compile Include="PlayHomeTool.cs" />
     <Compile Include="VRPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
