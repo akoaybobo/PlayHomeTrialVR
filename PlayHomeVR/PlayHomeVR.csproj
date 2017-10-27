@@ -46,11 +46,9 @@
     <Reference Include="System.Xml" />
     <Reference Include="UnityEngine">
       <HintPath>..\VRGIN\Libs\Unity 5.3.4\UnityEngine.dll</HintPath>
-      <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.UI">
       <HintPath>..\VRGIN\Libs\Unity 5.3.4\UnityEngine.UI.dll</HintPath>
-      <Private>False</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -58,6 +56,7 @@
     <Compile Include="PlayHomeActor.cs" />
     <Compile Include="PlayHomeInterpreter.cs" />
     <Compile Include="PlayHomeSeatedMode.cs" />
+    <Compile Include="PlayHomeSettings.cs" />
     <Compile Include="PlayHomeStandingMode.cs" />
     <Compile Include="PlayHomeTool.cs" />
     <Compile Include="VRPlugin.cs" />

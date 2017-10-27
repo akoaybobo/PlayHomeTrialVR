@@ -11,6 +11,13 @@ namespace PlayHomeVR
 
     public class PlayHomeInterpreter : GameInterpreter
     {
+        public enum EImpersonationTarget
+        {
+            Male,
+            Female,
+            Both
+        };
+
         public H_Scene Scene { get; private set; }
 
         private List<PlayHomeActor> _Actors = new List<PlayHomeActor>();
@@ -28,6 +35,8 @@ namespace PlayHomeVR
             if (Scene)
             {
                 RefreshActors();
+                foreach (var actor in _Actors)
+                    actor.OnUpdate();
             }
             else
             {
@@ -75,11 +84,24 @@ namespace PlayHomeVR
 
         public override IActor FindNextActorToImpersonate()
         {
-            var actors = _Actors.Where(x => x.IsMale).ToList();
+            List<PlayHomeActor> actors;
+            if (((PlayHomeSettings)VR.Context.Settings).ImpersonationTarget == EImpersonationTarget.Male)
+                actors = _Actors.Where(x => x.IsMale).ToList();
+            else if (((PlayHomeSettings)VR.Context.Settings).ImpersonationTarget == EImpersonationTarget.Female)
+                actors = _Actors.Where(x => x.IsFemale).ToList();
+            else
+                actors = _Actors;
+
             var res = actors.OrderByDescending(actor => Vector3.Dot((actor.Eyes.position - VR.Camera.transform.position).normalized, VR.Camera.SteamCam.head.forward)).FirstOrDefault();
             VRGIN.Core.Logger.Debug("Impersonated Actor: " + res != null ? res.Actor.name : "None");
             return res;
         }
 
+        public override bool IsAllowedEffect(MonoBehaviour effect)
+        {
+            return ((PlayHomeSettings)VR.Context.Settings).PostProcessingEffects
+                && (effect.GetType().Name.Equals("ImageEffectConfigChanger")
+                || (effect.GetType().Name.Equals("SSAOPro") && ((PlayHomeSettings)VR.Context.Settings).AllowSSAO));
+        }
     }
 }

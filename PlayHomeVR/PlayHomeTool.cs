@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 using Valve.VR;
+using VRGIN.Controls;
 using VRGIN.Controls.Tools;
 using VRGIN.Core;
 using VRGIN.Helpers;
@@ -46,21 +47,23 @@ namespace PlayHomeVR
                 {
                     if (tPadPress)
                     {
-                        if (Math.Abs(scene.MixCtrl.Speed - tPadPos.y) > 0.08f)
-                            scene.MixCtrl.Speed += scene.MixCtrl.Pose < tPadPos.y ? 0.08f : -0.08f;
+                        float fLimit = 2.0f * Time.deltaTime;
+                        if (Math.Abs(scene.MixCtrl.Speed - tPadPos.y) > fLimit)
+                            scene.MixCtrl.Speed += scene.MixCtrl.Pose < tPadPos.y ? fLimit : -fLimit;
                         else
                             scene.MixCtrl.Speed = tPadPos.y;
                     }
                     else if (tPadTouch)
                     {
+                        float fLimit = 2.0f * Time.deltaTime;
                         // avoid "jumping" from one position into the next by limiting the max movement
-                        if (Math.Abs(scene.MixCtrl.Pose - tPadPos.x) > 0.03f)
-                            scene.MixCtrl.Pose += scene.MixCtrl.Pose < tPadPos.x ? 0.03f : -0.03f;
+                        if (Math.Abs(scene.MixCtrl.Pose - tPadPos.x) > fLimit)
+                            scene.MixCtrl.Pose += scene.MixCtrl.Pose < tPadPos.x ? fLimit : -fLimit;
                         else
                             scene.MixCtrl.Pose = tPadPos.x;
 
-                        if (Math.Abs(scene.MixCtrl.Stroke - tPadPos.y) > 0.03f)
-                            scene.MixCtrl.Stroke += scene.MixCtrl.Stroke < tPadPos.y ? 0.03f : -0.03f;
+                        if (Math.Abs(scene.MixCtrl.Stroke - tPadPos.y) > fLimit)
+                            scene.MixCtrl.Stroke += scene.MixCtrl.Stroke < tPadPos.y ? fLimit : -fLimit;
                         else
                             scene.MixCtrl.Stroke = tPadPos.y;
                     }
@@ -121,9 +124,7 @@ namespace PlayHomeVR
                         m_bForceLook = true;
                         foreach (var female in ((PlayHomeInterpreter)VR.Interpreter).FemaleMainActors)
                         {
-                            female.Actor.ChangeNeckLook(LookAtRotator.TYPE.TARGET, VRCamera.Instance.SteamCam.head, false);
-                            female.Actor.ChangeEyeLook(LookAtRotator.TYPE.TARGET, VRCamera.Instance.SteamCam.head, false);
-                            VRGIN.Core.Logger.Debug("Forcing " + (female.Actor as Female).name + " to look");
+                            female.SetLookAt(VRCamera.Instance.SteamCam.head);
                         }
                     }
                     else if (m_bForceLook)
@@ -131,13 +132,66 @@ namespace PlayHomeVR
                         m_bForceLook = false;
                         foreach (var female in ((PlayHomeInterpreter)VR.Interpreter).FemaleMainActors)
                         {
-                            female.Actor.ChangeNeckLook(LookAtRotator.TYPE.NO, VRCamera.Instance.SteamCam.head, false);
-                            female.Actor.ChangeEyeLook(LookAtRotator.TYPE.NO, VRCamera.Instance.SteamCam.head, false);
+                            female.ClearLookAt();
                         }
-                        VRGIN.Core.Logger.Debug("Remove Forced look");
                     }
                 }
             }
+        }
+
+        public override List<HelpText> GetHelpTexts()
+        {
+            List<HelpText> res = new List<HelpText>();
+            H_Scene scene = ((PlayHomeInterpreter)VR.Interpreter).Scene;
+            if (scene != null)
+            {
+                if (scene.mainMembers.StateMgr.NowStateID == H_STATE.LOOP)
+                {
+                    res.Add(HelpText.Create("Change movement", FindAttachPosition("trackpad"), new Vector3(0, 0.02f, 0.05f)));
+                    res.Add(HelpText.Create("Press for speed", FindAttachPosition("trackpad"), new Vector3(0.05f, 0.02f, 0)));
+                    if (scene.buttonInEja.IsActive())
+                    {
+                        res.Add(HelpText.Create("Cum inside", FindAttachPosition("lgrip"), new Vector3(-0.06f, 0.0f, -0.05f)));
+                    }
+                    else if (scene.buttonOutEja.IsActive())
+                    {
+                        res.Add(HelpText.Create("Cum outside", FindAttachPosition("lgrip"), new Vector3(-0.06f, 0.0f, -0.05f)));
+                    }
+                }
+                else if (scene.mainMembers.StateMgr.NowStateID == H_STATE.SHOW_MOUTH_LIQUID)
+                {
+                    if (scene.buttonDrink.IsActive())
+                    {
+                        res.Add(HelpText.Create("Swallow", FindAttachPosition("lgrip"), new Vector3(-0.06f, 0.0f, -0.05f)));
+                    }
+                    else if (scene.buttonVomit.IsActive())
+                    {
+                        res.Add(HelpText.Create("Spit out", FindAttachPosition("trigger"), new Vector3(-0.06f, 0.0f, -0.05f)));
+                    }
+                }
+                else if (scene.buttonExtract.IsActive())
+                {
+                    res.Add(HelpText.Create("Pull out", FindAttachPosition("lgrip"), new Vector3(-0.06f, 0.0f, -0.05f)));
+                }
+                else if (scene.mainMembers.StateMgr.NowStateID == H_STATE.PRE_INSERT_WAIT)
+                {
+                    res.Add(HelpText.Create("Click to push in", FindAttachPosition("trackpad"), new Vector3(0.06f, 0.04f, -0.05f)));
+                }
+                else if (scene.mainMembers.StateMgr.NowStateID == H_STATE.PRE_TOUCH_WAIT || scene.mainMembers.StateMgr.NowStateID == H_STATE.INSERTED_WAIT)
+                {
+                    res.Add(HelpText.Create("Click to start", FindAttachPosition("trackpad"), new Vector3(0.06f, 0.04f, -0.05f)));
+                }
+
+                if (scene.mainMembers.StateMgr.NowStateID != H_STATE.SHOW_MOUTH_LIQUID)
+                {
+                    if (m_bForceLook)
+                        res.Add(HelpText.Create("Stop looking", FindAttachPosition("trigger"), new Vector3(-0.06f, 0.0f, -0.05f)));
+                    else
+                        res.Add(HelpText.Create("Girl looks at you", FindAttachPosition("trigger"), new Vector3(-0.06f, 0.0f, -0.05f)));
+
+                }
+            }
+            return res;
         }
     }
 }

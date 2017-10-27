@@ -18,13 +18,13 @@ namespace PlayHomeVR
     public class ConfigurableContext : IVRManagerContext
     {
         DefaultMaterialPalette _Materials;
-        VRSettings _Settings;
+        PlayHomeSettings _Settings;
 
         public ConfigurableContext()
         {
             // We'll keep those always the same
             _Materials = new DefaultMaterialPalette();
-            _Settings = VRSettings.Load<VRSettings>("VRSettings.xml");
+            _Settings = VRSettings.Load<PlayHomeSettings>("VRSettings.xml");
 
             // Set defaults
             ConfineMouse = true;
