@@ -9,7 +9,7 @@ using VRGIN.Helpers;
 using VRGIN.Modes;
 
 
-namespace PlayHomeTrialVR
+namespace PlayHomeVR
 {
     class PlayHomeSeatedMode : SeatedMode
     {

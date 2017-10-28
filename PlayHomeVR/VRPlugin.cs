@@ -1,15 +1,16 @@
-using IllusionPlugin;
+﻿using IllusionPlugin;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Xml.Serialization;
 using VRGIN.Core;
 using VRGIN.Helpers;
 
-namespace PlayHomeTrialVR
+namespace PlayHomeVR
 {
 
     /// <summary>
@@ -33,7 +34,7 @@ namespace PlayHomeTrialVR
         {
             get
             {
-                return "0.2.1";
+                return AssemblyName.GetAssemblyName(Assembly.GetExecutingAssembly().Location).Version.ToSt‌​ring();
             }
         }
 
