@@ -25,7 +25,7 @@ namespace PlayHomeVR
         {
             get
             {
-                return base.Tools.Concat(new Type[] { typeof(PlayHomeTool) });
+                return base.Tools.Concat(new Type[] { typeof(PlayHomePlayTool), typeof(PlayHomeObeyTool) });
             }
         }
     }

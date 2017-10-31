@@ -1,18 +1,22 @@
-﻿using H;
+﻿using Character;
+using H;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using UnityEngine;
+using UnityEngine.UI;
 using Valve.VR;
 using VRGIN.Controls;
 using VRGIN.Controls.Tools;
 using VRGIN.Core;
 using VRGIN.Helpers;
+using static PlayHomeVR.PlayHomeActor;
 
 namespace PlayHomeVR
 {
-    class PlayHomeTool : Tool
+    class PlayHomePlayTool : Tool
     {
         public override Texture2D Image
         {
@@ -25,7 +29,7 @@ namespace PlayHomeVR
 
         protected override void OnDestroy()
         {
-            
+
         }
 
         protected override void OnUpdate()

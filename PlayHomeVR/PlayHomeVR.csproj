@@ -46,19 +46,22 @@
     <Reference Include="System.Xml" />
     <Reference Include="UnityEngine">
       <HintPath>..\VRGIN\Libs\Unity 5.3.4\UnityEngine.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.UI">
       <HintPath>..\VRGIN\Libs\Unity 5.3.4\UnityEngine.UI.dll</HintPath>
+      <Private>False</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConfigurableContext.cs" />
     <Compile Include="PlayHomeActor.cs" />
     <Compile Include="PlayHomeInterpreter.cs" />
+    <Compile Include="PlayHomeObeyTool.cs" />
     <Compile Include="PlayHomeSeatedMode.cs" />
     <Compile Include="PlayHomeSettings.cs" />
     <Compile Include="PlayHomeStandingMode.cs" />
-    <Compile Include="PlayHomeTool.cs" />
+    <Compile Include="PlayHomePlayTool.cs" />
     <Compile Include="VRPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -71,6 +74,18 @@
   <ItemGroup>
     <None Include="Deploy.props" />
   </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <Content Include="Images\hand.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\hand_grab.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\icon_maestro.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="AfterBuild">
     <Message Text="Packaging build..." Importance="high" />
@@ -79,9 +94,11 @@
       <IPA Include="..\Libs\IPA\**\*" />
       <DataFiles Include="$(OutputPath)Data\**\*" />
       <PdbFiles Include="$(OutputPath)*.pdb" />
+      <ImageFiles Include="$(OutputPath)Images\*.*" />
     </ItemGroup>
     <!-- Copy plugins to the right place -->
     <Move SourceFiles="@(ManagedLibs)" DestinationFolder="$(OutputPath)Plugins" />
+    <Move SourceFiles="@(ImageFiles)" DestinationFolder="$(OutputPath)Plugins\Images" />
     <!-- Copy IPA -->
     <Copy SourceFiles="@(IPA)" DestinationFolder="$(OutputPath)%(RecursiveDir)" />
     <!-- Move Data stuff into IPA folder -->
