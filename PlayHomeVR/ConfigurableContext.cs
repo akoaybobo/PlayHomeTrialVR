@@ -9,7 +9,7 @@ using VRGIN.Core;
 using VRGIN.Helpers;
 using VRGIN.Visuals;
 
-namespace PlayHomeTrialVR
+namespace PlayHomeVR
 {
     /// <summary>
     /// Context class that can be serialized as an XML. Normally, you would implement this yourself and simply override getters with sensible values.
@@ -18,13 +18,13 @@ namespace PlayHomeTrialVR
     public class ConfigurableContext : IVRManagerContext
     {
         DefaultMaterialPalette _Materials;
-        VRSettings _Settings;
+        PlayHomeSettings _Settings;
 
         public ConfigurableContext()
         {
             // We'll keep those always the same
             _Materials = new DefaultMaterialPalette();
-            _Settings = VRSettings.Load<VRSettings>("VRSettings.xml");
+            _Settings = VRSettings.Load<PlayHomeSettings>("VRSettings.xml");
 
             // Set defaults
             ConfineMouse = true;

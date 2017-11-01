@@ -153,6 +153,7 @@ namespace VRGIN.Core
         private delegate void CameraOperation(Camera camera);
 
         private static VRCamera _Instance;
+        private bool m_bFxEnabled = false;
         public SteamVR_Camera SteamCam { get; private set; }
         public Camera Blueprint
         {
@@ -255,9 +256,9 @@ namespace VRGIN.Core
                 // Apply to both the head camera and the VR camera
                 ApplyToCameras(targetCamera =>
                 {
-                    targetCamera.nearClipPlane = VR.Context.NearClipPlane;
+                    targetCamera.nearClipPlane = VR.Context.NearClipPlane/100;
                     targetCamera.farClipPlane = Mathf.Max(Blueprint.farClipPlane, MIN_FAR_CLIP_PLANE);
-                    //targetCamera.clearFlags = Blueprint.clearFlags == CameraClearFlags.Skybox ? CameraClearFlags.Skybox : CameraClearFlags.SolidColor;
+                    targetCamera.clearFlags = Blueprint.clearFlags == CameraClearFlags.Skybox ? CameraClearFlags.Skybox : CameraClearFlags.SolidColor;
                     targetCamera.renderingPath = Blueprint.renderingPath;
                     targetCamera.clearStencilAfterLightingPass = Blueprint.clearStencilAfterLightingPass;
                     targetCamera.depthTextureMode = Blueprint.depthTextureMode;
@@ -268,15 +269,29 @@ namespace VRGIN.Core
 
                     targetCamera.backgroundColor = Blueprint.backgroundColor;
 
-                    //PlayHomeTrial not workign with the skybox
-                    //var skybox = Blueprint.GetComponent<Skybox>();
-                    //if (skybox != null)
-                    //{
-                    //    var vrSkybox = targetCamera.gameObject.GetComponent<Skybox>();
-                    //    if (vrSkybox == null) vrSkybox = vrSkybox.gameObject.AddComponent<Skybox>();
+                    var skybox = Blueprint.GetComponent<Skybox>();
+                    if (skybox != null)
+                    {
+                        var vrSkybox = targetCamera.gameObject.GetComponent<Skybox>();
+                        if (vrSkybox == null) vrSkybox = targetCamera.gameObject.AddComponent<Skybox>();
 
-                    //    vrSkybox.material = skybox.material;
-                    //}
+                        vrSkybox.material = skybox.material;
+                    }
+
+                    foreach (var comp in blueprint.GetComponents<MonoBehaviour>())
+                    {
+                        if (targetCamera.gameObject.GetComponent(comp.GetType()) == null)
+                        {
+                            if (VR.Interpreter.IsAllowedEffect(comp))
+                            {
+                                VRLog.Debug("Copy FX " + comp.GetType().Name);
+                                var cp = targetCamera.gameObject.CopyComponentFrom(comp);
+                                cp.enabled = comp.enabled;
+                                m_bFxEnabled = true;
+                                FixEffectOrder();
+                            }                           
+                        }
+                    }
                 });
 
             }
@@ -341,11 +356,10 @@ namespace VRGIN.Core
             cullingMask &= ~(VR.Context.IgnoreMask);
 
             VRLog.Info("The camera sees {0} ({1})", string.Join(", ", UnityHelper.GetLayerNames(cullingMask)), string.Join(", ", Slaves.Select(s => s.name).ToArray()));
-
             GetComponent<Camera>().cullingMask = cullingMask;
         }
 
-        /// <summary>
+        /*/// <summary>
         /// Doesn't really work yet.
         /// </summary>
         /// <param name="blueprint"></param>
@@ -354,7 +368,7 @@ namespace VRGIN.Core
 
             CopyFX(blueprint.gameObject, gameObject, true);
             FixEffectOrder();  
-        }
+        }*/
 
         public void FixEffectOrder()
         {
@@ -366,7 +380,7 @@ namespace VRGIN.Core
             SteamCam = GetComponent<SteamVR_Camera>();
         }
 
-        private void CopyFX(GameObject source, GameObject target, bool disabledSourceFx = false)
+        /*private void CopyFX(GameObject source, GameObject target, bool disabledSourceFx = false)
         {
             // Clean
             foreach (var fx in target.GetCameraEffects())
@@ -399,7 +413,7 @@ namespace VRGIN.Core
                 }
             }
             VRLog.Info("{0} components before the additions, {1} after", comps, target.GetComponents<Component>().Length);
-        }
+        }*/
 
         private void ApplyToCameras(CameraOperation operation)
         {
@@ -420,7 +434,7 @@ namespace VRGIN.Core
 
         public void Refresh()
         {
-            CopyFX(Blueprint);
+            //CopyFX(Blueprint);
         }
 
         internal Camera Clone(bool copyEffects = true)
@@ -429,7 +443,8 @@ namespace VRGIN.Core
 
             if (copyEffects)
             {
-                CopyFX(SteamCam.gameObject, clone.gameObject);
+                // FIXME lateron
+                //CopyFX(SteamCam.gameObject, clone.gameObject);
             }
             clone.transform.position = transform.position;
             clone.transform.rotation = transform.rotation;
@@ -450,6 +465,23 @@ namespace VRGIN.Core
             VRLog.Info("Camera went offline: {0}", slave.name);
             Slaves.Remove(slave);
             UpdateCameraConfig();
+        }
+
+        public void ToggleFX()
+        {
+            m_bFxEnabled = !m_bFxEnabled;
+            foreach (var comp in SteamCam.GetComponents<MonoBehaviour>())
+            {
+                if (VR.Interpreter.IsAllowedEffect(comp))
+                {
+                    comp.enabled = m_bFxEnabled;
+                    VRLog.Debug("Toggling FX : {0}, Enabled: {1}", comp.GetType().Name, comp.enabled);
+                }
+                else if (comp.GetType().Name.Equals("PostProcessingBehaviour"))
+                {
+                    comp.enabled = m_bFxEnabled;
+                }
+            }
         }
     }
 }
